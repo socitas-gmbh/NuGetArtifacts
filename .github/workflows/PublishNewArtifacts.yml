@@ -26,7 +26,7 @@ jobs:
       - name: Load Countries
         id: load_countries
         shell: pwsh       
-        run: ./scripts/GetVersions.ps1
+        run: ./Scripts/GetVersions.ps1
 
       - name: ShowOutput      
         shell: pwsh       
