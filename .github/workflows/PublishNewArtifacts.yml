@@ -52,5 +52,5 @@ jobs:
       - name: Update NuGet
         shell: pwsh       
         run: |
-          ./Scripts/BCNuGetArtifacts.ps1 -Country ${{matrix.versions.country}} -MajorVersion ${{matrix.versions.version}}
+          ./Scripts/BCNuGetArtifacts.ps1 -Country ${{matrix.versions.country}} -Select ${{matrix.versions.version}}
 
