@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
         
     outputs:
-      countries: ${{ steps.load_countries.outputs.countries }}
+      versions: ${{ steps.load_countries.outputs.versions }}
       
     steps:
       - name: Install BC Container Helper
@@ -53,5 +53,3 @@ jobs:
         shell: pwsh       
         run: |
           Write-Host ${{matrix.versions}}
-      
-    
