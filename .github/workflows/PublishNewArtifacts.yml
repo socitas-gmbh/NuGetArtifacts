@@ -52,4 +52,6 @@ jobs:
       - name: Build Commits
         shell: pwsh       
         run: |
-          Write-Host ${{matrix.versions}}
+          Write-Host ${{matrix.versions.country}}
+          Write-Host ${{matrix.versions.version}}
+
