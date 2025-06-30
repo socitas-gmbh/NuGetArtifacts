@@ -1,5 +1,7 @@
-$MajorVersions = "NextMajor", "NextMinor"
-$Countries = "DE","AT","W1"
+# $MajorVersions = "NextMajor", "NextMinor"
+# $Countries = "DE","AT","W1"
+$MajorVersions = "NextMajor"
+$Countries = "DE"
 
 $combinations = @()
 foreach ($country in $Countries) {
