@@ -4,6 +4,7 @@ param(
 )
 
 $FilesToRemove = [System.Collections.Generic.List[string]]::new()
+dotnet tool install --global Microsoft.Dynamics.BusinessCentral.Development.Tools --version 16.0.22.35424-beta
 
 function Download-Artifacts {
     param(
@@ -68,7 +69,7 @@ function Create-SymbolPackages {
             $FilesToRemove.Add($NuGetPackageFullName)
 
             Write-Host $NuGetPackageFullName
-            # .\nuget.exe push -src SocitasApps $NuGetPackageFullName -source "https://nuget.pkg.github.com/socitas-gmbh/index.json" -apikey $Env:NUGET_API_KEY
+            .\nuget.exe push -src SocitasApps $NuGetPackageFullName -source "https://nuget.pkg.github.com/socitas-gmbh/index.json" -apikey $Env:NUGET_API_KEY
         }
     }
 }
