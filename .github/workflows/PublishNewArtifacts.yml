@@ -52,5 +52,5 @@ jobs:
       - name: Build Commits
         shell: pwsh       
         run: |
-          ./scripts/BCNuGetArtifacts.ps1 -Country ${{ matrix.country }} -MajorVersion ${{ matrix.majorVersion }}
+          ./Scripts/BCNuGetArtifacts.ps1 -Country ${{ matrix.country }} -MajorVersion ${{ matrix.majorVersion }}
 
