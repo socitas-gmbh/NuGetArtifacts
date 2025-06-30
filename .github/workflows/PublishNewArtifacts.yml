@@ -23,7 +23,7 @@ jobs:
         with:
           ref: main
       
-      - name: Load Countries
+      - name: Load Countries and Versions
         id: load_countries
         shell: pwsh       
         run: ./Scripts/GetVersions.ps1
@@ -34,7 +34,7 @@ jobs:
         
   buildCommits:
     needs: prepare
-    name: Build Commits
+    name: Update NuGet
     runs-on: ubuntu-latest
     
     strategy:
@@ -49,8 +49,8 @@ jobs:
       - name: Check out the repository to the runner
         uses: actions/checkout@v4.2.1
         
-      - name: Build Commits
+      - name: Update NuGet
         shell: pwsh       
         run: |
-          ./Scripts/BCNuGetArtifacts.ps1 -Country ${{ matrix.country }} -MajorVersion ${{ matrix.majorVersion }}
+          ./Scripts/BCNuGetArtifacts.ps1 -Country ${{matrix.versions.country}} -MajorVersion ${{matrix.versions.version}}
 
