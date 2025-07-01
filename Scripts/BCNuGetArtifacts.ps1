@@ -62,10 +62,10 @@ function Create-SymbolPackages {
         foreach ($file in $files) {
             Write-Host "Processing file: $($file.FullName)"
             $symbolAppName = "$($file.FullName)$($Country).symbol.app"
-            $packageName = al CreateSymbolPackage $file.FullName $symbolAppName
+            al CreateSymbolPackage $file.FullName $symbolAppName
             $FilesToRemove.Add($symbolAppName)
 
-            $NuGetPackageFullName = New-BcNuGetPackage -appfile $packageName -packageId $appsToBePublished[$appKey]
+            $NuGetPackageFullName = New-BcNuGetPackage -appfile $symbolAppName -packageId $appsToBePublished[$appKey]
             $FilesToRemove.Add($NuGetPackageFullName)
 
             Write-Host $NuGetPackageFullName
