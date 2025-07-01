@@ -45,17 +45,14 @@ function Create-SymbolPackages {
     )
     Write-Host "Creating symbol packages in folder: $AppFolder"
     $appsToBePublished = @{
-        "Microsoft_Base Application"    = "{publisher}.{name}.symbols.{id}";
-        "Microsoft_Business Foundation" = "{publisher}.{name}.symbols.{id}";
-        "Microsoft_System Application"  = "{publisher}.{name}.symbols.{id}";
-        "Microsoft_Application"         = "{publisher}.{name}.symbols";
+        "Microsoft_Base Application"    = "{publisher}.{name}.{tag}.symbols.{id}";
+        "Microsoft_Business Foundation" = "{publisher}.{name}.{tag}.symbols.{id}";
+        "Microsoft_System Application"  = "{publisher}.{name}.{tag}.symbols.{id}";
+        "Microsoft_Application"         = "{publisher}.{name}.{tag}.symbols";
     }
 
     if ($Country -eq "W1") {
         $Country = ""
-    } else
-    {
-        $Country = ".$Country"
     }
 
     # Determine if insider tag should be added
@@ -73,7 +70,10 @@ function Create-SymbolPackages {
             if ($insiderTag) {
                 $params = @{"prereleaseTag" = "insider"}
             }
-            $NuGetPackageFullName = New-BcNuGetPackage @params -appfile $symbolAppName -packageId $appsToBePublished[$appKey]
+            $appMetadata = al GetPackageManifest $symbolAppName | ConvertFrom-Json
+            $packageId = Get-BcNuGetPackageId -packageIdTemplate $appsToBePublished[$appKey] -publisher $appMetadata.Publisher -name $appMetadata.Name -id $appMetadata.Id -tag $Country
+
+            $NuGetPackageFullName = New-BcNuGetPackage @params -appfile $symbolAppName -packageId $packageId
             $FilesToRemove.Add($NuGetPackageFullName)
 
             Write-Host $NuGetPackageFullName
