@@ -1,4 +1,4 @@
-name: BuildNewCommits
+name: PushNugetInsider
 
 on:
   schedule:

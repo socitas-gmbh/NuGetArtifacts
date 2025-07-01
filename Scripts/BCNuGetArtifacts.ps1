@@ -69,11 +69,11 @@ function Create-SymbolPackages {
             al CreateSymbolPackage $file.FullName $symbolAppName
             $FilesToRemove.Add($symbolAppName)
 
-            $packageId = $appsToBePublished[$appKey]
+            $params = @{}
             if ($insiderTag) {
-                $packageId = "$packageId-insider"
+                $params = @{"insider" = $prereleaseTag}
             }
-            $NuGetPackageFullName = New-BcNuGetPackage -appfile $symbolAppName -packageId $packageId
+            $NuGetPackageFullName = New-BcNuGetPackage @$params -appfile $symbolAppName -packageId $appsToBePublished[$appKey]
             $FilesToRemove.Add($NuGetPackageFullName)
 
             Write-Host $NuGetPackageFullName
