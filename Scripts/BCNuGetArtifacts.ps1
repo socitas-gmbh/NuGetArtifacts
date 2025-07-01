@@ -40,7 +40,8 @@ function Download-Artifacts {
 function Create-SymbolPackages {
     param(
         [string]$AppFolder,
-        [string]$Country
+        [string]$Country,
+        [string]$Select
     )
     Write-Host "Creating symbol packages in folder: $AppFolder"
     $appsToBePublished = @{
@@ -57,6 +58,9 @@ function Create-SymbolPackages {
         $Country = ".$Country"
     }
 
+    # Determine if insider tag should be added
+    $insiderTag = ($Select -eq "NextMajor" -or $Select -eq "NextMinor")
+
     foreach ($appKey in $appsToBePublished.Keys) {
         $files = Get-ChildItem -Path (Join-Path $AppFolder "Extensions") -Filter "$appKey*.app"
         foreach ($file in $files) {
@@ -65,7 +69,11 @@ function Create-SymbolPackages {
             al CreateSymbolPackage $file.FullName $symbolAppName
             $FilesToRemove.Add($symbolAppName)
 
-            $NuGetPackageFullName = New-BcNuGetPackage -appfile $symbolAppName -packageId $appsToBePublished[$appKey]
+            $packageId = $appsToBePublished[$appKey]
+            if ($insiderTag) {
+                $packageId = "$packageId-insider"
+            }
+            $NuGetPackageFullName = New-BcNuGetPackage -appfile $symbolAppName -packageId $packageId
             $FilesToRemove.Add($NuGetPackageFullName)
 
             Write-Host $NuGetPackageFullName
@@ -92,7 +100,7 @@ function Cleanup-TemporaryFiles {
 try{
     Write-Host "Starting BC NuGet Artifacts process"
     $ArtifactPath = Download-Artifacts -Country $Country -Select $Select
-    Create-SymbolPackages -AppFolder $ArtifactPath -Country $Country
+    Create-SymbolPackages -AppFolder $ArtifactPath -Country $Country -Select $Select
     Cleanup-TemporaryFiles -TempFolder "PathToTempFolder"
     Write-Host "Process completed"
 } catch {
