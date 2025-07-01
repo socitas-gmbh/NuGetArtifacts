@@ -69,7 +69,7 @@ function Create-SymbolPackages {
             $FilesToRemove.Add($NuGetPackageFullName)
 
             Write-Host $NuGetPackageFullName
-            .\Scripts\nuget.exe push $NuGetPackageFullName -source "https://nuget.pkg.github.com/socitas-gmbh/index.json" -ApiKey $Env:NUGET_API_KEY
+            dotnet nuget push $NuGetPackageFullName --api-key $Env:NUGET_API_KEY --source "https://nuget.pkg.github.com/socitas-gmbh/index.json" --skip-duplicate
         }
     }
 }
