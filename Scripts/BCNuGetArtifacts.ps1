@@ -58,14 +58,14 @@ function Create-SymbolPackages {
     }
 
     foreach ($appKey in $appsToBePublished.Keys) {
-        $files = Get-ChildItem -Path $AppFolder -Filter "$appKey*.app"
+        $files = Get-ChildItem -Path (Join-Path $AppFolder "Extensions") -Filter "$appKey*.app"
         foreach ($file in $files) {
             Write-Host "Processing file: $($file.FullName)"
             $symbolAppName = "$($file.FullName)$($Country).symbol.app"
             $packageName = al CreateSymbolPackage $file.FullName $symbolAppName
             $FilesToRemove.Add($symbolAppName)
 
-            $NuGetPackageFullName = New-BcNuGetPackage -appfile $symbolAppName -packageId $appsToBePublished[$appKey]
+            $NuGetPackageFullName = New-BcNuGetPackage -appfile $packageName -packageId $appsToBePublished[$appKey]
             $FilesToRemove.Add($NuGetPackageFullName)
 
             Write-Host $NuGetPackageFullName
