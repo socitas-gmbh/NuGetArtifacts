@@ -64,7 +64,7 @@ function Create-SymbolPackages {
         
         if ($appKey -eq "Microsoft_Platform") {
             # Platform app is in a different location
-            $platformPath = Join-Path $AppFolder "platform\ModernDev\pfiles\microsoft dynamics nav\270\al development environment\System.app"
+            $platformPath = Join-Path $AppFolder "platform\ModernDev\pfiles\microsoft dynamics nav\*\al development environment\System.app"
             if (Test-Path $platformPath) {
                 $files = @(Get-Item $platformPath)
             }
