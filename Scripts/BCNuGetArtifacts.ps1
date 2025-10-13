@@ -49,6 +49,7 @@ function Create-SymbolPackages {
         "Microsoft_Business Foundation" = "{publisher}.{name}.{tag}.symbols.{id}";
         "Microsoft_System Application"  = "{publisher}.{name}.{tag}.symbols.{id}";
         "Microsoft_Application"         = "{publisher}.{name}.{tag}.symbols";
+        "Microsoft_Platform"            = "{publisher}.{name}";
     }
 
     if ($Country -eq "W1") {
@@ -59,7 +60,19 @@ function Create-SymbolPackages {
     $insiderTag = ($Select -eq "NextMajor" -or $Select -eq "NextMinor")
 
     foreach ($appKey in $appsToBePublished.Keys) {
-        $files = Get-ChildItem -Path (Join-Path $AppFolder "Extensions") -Filter "$appKey*.app"
+        $files = @()
+        
+        if ($appKey -eq "Microsoft_Platform") {
+            # Platform app is in a different location
+            $platformPath = Join-Path $AppFolder "platform\ModernDev\pfiles\microsoft dynamics nav\270\al development environment\System.app"
+            if (Test-Path $platformPath) {
+                $files = @(Get-Item $platformPath)
+            }
+        } else {
+            # Other apps are in the Extensions folder
+            $files = Get-ChildItem -Path (Join-Path $AppFolder "Extensions") -Filter "$appKey*.app"
+        }
+        
         foreach ($file in $files) {
             Write-Host "Processing file: $($file.FullName)"
             $symbolAppName = "$($file.FullName)$($Country).symbol.app"
@@ -73,7 +86,13 @@ function Create-SymbolPackages {
             $appMetadata = al GetPackageManifest $symbolAppName | ConvertFrom-Json
             $packageId = Get-BcNuGetPackageId -packageIdTemplate $appsToBePublished[$appKey] -publisher $appMetadata.Publisher -name $appMetadata.Name -id $appMetadata.Id -tag $Country
 
-            $NuGetPackageFullName = New-BcNuGetPackage @params -appfile $symbolAppName -packageId $packageId
+            # Create dependency template for localized packages
+            $dependencyIdTemplate = if ($Country) { "{publisher}.{name}.$Country.symbols.{id}" } else { "{publisher}.{name}.symbols.{id}" }
+            
+            # Platform dependency should not be localized, and Platform app should not depend on itself
+            $platformDependencyId = if ($appKey -eq "Microsoft_Platform") { $null } else { "Microsoft.Platform" }
+                        
+            $NuGetPackageFullName = New-BcNuGetPackage @params -appfile $symbolAppName -packageId $packageId -dependencyIdTemplate $dependencyIdTemplate -platformDependencyId $platformDependencyId
             $FilesToRemove.Add($NuGetPackageFullName)
 
             Write-Host $NuGetPackageFullName
