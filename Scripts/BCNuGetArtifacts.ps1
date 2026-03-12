@@ -33,6 +33,15 @@ function Download-Artifacts {
     $FilesToRemove.Add($ArtifactFolder)
 
     Write-Host "Download completed successfully"
+
+    # Also download the platform artifact (contains System.app)
+    $platformUrl = $url -replace '/[^/]+$', '/platform'
+    $platformFilePath = Join-Path $tempPath "BCArtifacts_platform.zip"
+    Write-Host "Downloading platform artifact to: $platformFilePath"
+    (New-Object System.Net.WebClient).DownloadFile($platformUrl, $platformFilePath)
+    $FilesToRemove.Add($platformFilePath)
+    Expand-Archive -Path $platformFilePath -DestinationPath (Join-Path $ArtifactFolder "platform") -Force
+
     return $ArtifactFolder
 }
 
@@ -63,11 +72,8 @@ function Create-SymbolPackages {
         $files = @()
         
         if ($appKey -eq "Microsoft_Platform") {
-            # Platform app is in a different location
-            $platformPath = Join-Path $AppFolder "platform\ModernDev\pfiles\microsoft dynamics nav\*\al development environment\System.app"
-            if (Test-Path $platformPath) {
-                $files = @(Get-Item $platformPath)
-            }
+            # Platform app is in a different location - search recursively to avoid hardcoded version paths
+            $files = @(Get-ChildItem -Path (Join-Path $AppFolder "platform") -Recurse -Filter "System.app" -ErrorAction SilentlyContinue)
         } else {
             # Other apps are in the Extensions folder
             $files = Get-ChildItem -Path (Join-Path $AppFolder "Extensions") -Filter "$appKey*.app"
@@ -84,7 +90,7 @@ function Create-SymbolPackages {
                 $params = @{"prereleaseTag" = "insider"}
             }
             $appMetadata = al GetPackageManifest $symbolAppName | ConvertFrom-Json
-            $packageId = Get-BcNuGetPackageId -packageIdTemplate $appsToBePublished[$appKey] -publisher $appMetadata.Publisher -name $appMetadata.Name -id $appMetadata.Id -tag $Country
+            $packageId = Get-BcNuGetPackageId -packageIdTemplate "{publisher}.{name}" -publisher $appMetadata.Publisher -name $appMetadata.Name -id $appMetadata.Id -tag $Country
 
             # Create dependency template for localized packages
             $dependencyIdTemplate = if ($Country) { "{publisher}.{name}.$Country.symbols.{id}" } else { "{publisher}.{name}.symbols.{id}" }
@@ -92,7 +98,7 @@ function Create-SymbolPackages {
             # Platform dependency should not be localized, and Platform app should not depend on itself
             $platformDependencyId = if ($appKey -eq "Microsoft_Platform") { $null } else { "Microsoft.Platform" }
                         
-            $NuGetPackageFullName = New-BcNuGetPackage @params -appfile $symbolAppName -packageId $packageId -dependencyIdTemplate $dependencyIdTemplate -platformDependencyId $platformDependencyId
+            $NuGetPackageFullName = New-BcNuGetPackage @params -appfile $symbolAppName -packageId $packageId
             $FilesToRemove.Add($NuGetPackageFullName)
 
             Write-Host $NuGetPackageFullName
