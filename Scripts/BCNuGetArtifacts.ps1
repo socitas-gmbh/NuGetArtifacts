@@ -58,7 +58,7 @@ function Create-SymbolPackages {
         "Microsoft_Business Foundation" = "{publisher}.{name}.{tag}.symbols.{id}";
         "Microsoft_System Application"  = "{publisher}.{name}.{tag}.symbols.{id}";
         "Microsoft_Application"         = "{publisher}.{name}.{tag}.symbols";
-        "Microsoft_Platform"            = "{publisher}.{name}";
+        "Microsoft_Platform"            = "Microsoft.Platform.symbols";
     }
 
     if ($Country -eq "W1") {
@@ -76,7 +76,7 @@ function Create-SymbolPackages {
             $files = @(Get-ChildItem -Path (Join-Path $AppFolder "platform") -Recurse -Filter "System.app" -ErrorAction SilentlyContinue)
         } else {
             # Other apps are in the Extensions folder
-            $files = Get-ChildItem -Path (Join-Path $AppFolder "Extensions") -Filter "$appKey*.app"
+            $files = Get-ChildItem -Path (Join-Path $AppFolder "Extensions") -Filter "$appKey_*.app"
         }
         
         foreach ($file in $files) {
@@ -90,7 +90,12 @@ function Create-SymbolPackages {
                 $params = @{"prereleaseTag" = "insider"}
             }
             $appMetadata = al GetPackageManifest $symbolAppName | ConvertFrom-Json
-            $packageId = Get-BcNuGetPackageId -packageIdTemplate "{publisher}.{name}" -publisher $appMetadata.Publisher -name $appMetadata.Name -id $appMetadata.Id -tag $Country
+            $packageIdTemplate = $appsToBePublished[$appKey]
+            if ($packageIdTemplate -match "\{publisher\}|\{name\}|\{id\}|\{tag\}") {
+                $packageId = Get-BcNuGetPackageId -packageIdTemplate $packageIdTemplate -publisher $appMetadata.Publisher -name $appMetadata.Name -id $appMetadata.Id -tag $Country
+            } else {
+                $packageId = $packageIdTemplate
+            }
 
             # Create dependency template for localized packages
             $dependencyIdTemplate = if ($Country) { "{publisher}.{name}.$Country.symbols.{id}" } else { "{publisher}.{name}.symbols.{id}" }
