@@ -103,7 +103,7 @@ function Create-SymbolPackages {
             # Platform dependency should not be localized, and Platform app should not depend on itself
             $platformDependencyId = if ($appKey -eq "Microsoft_Platform") { $null } else { "Microsoft.Platform" }
                         
-            $NuGetPackageFullName = New-BcNuGetPackage @params -appfile $symbolAppName -packageId $packageId
+            $NuGetPackageFullName = New-BcNuGetPackage @params -appfile $symbolAppName -packageId $packageId -dependencyIdTemplate $dependencyIdTemplate -platformDependencyId $platformDependencyId
             $FilesToRemove.Add($NuGetPackageFullName)
 
             Write-Host $NuGetPackageFullName
