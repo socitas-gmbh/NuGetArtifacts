@@ -76,7 +76,7 @@ function Create-SymbolPackages {
             $files = @(Get-ChildItem -Path (Join-Path $AppFolder "platform") -Recurse -Filter "System.app" -ErrorAction SilentlyContinue)
         } else {
             # Other apps are in the Extensions folder
-            $files = Get-ChildItem -Path (Join-Path $AppFolder "Extensions") -Filter "$appKey_*.app"
+            $files = Get-ChildItem -Path (Join-Path $AppFolder "Extensions") -Filter "$($appKey)_*.app"
         }
         
         foreach ($file in $files) {
